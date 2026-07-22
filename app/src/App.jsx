@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import api from './services/api.js'; // Tu configuración de Axios
+// CORRECCIÓN 1: Importamos la función específica de tu api.js
+import { getDeportes } from './services/api.js'; 
 
 // 1. Datos Locales (Opciones de cobertura de seguro exigidas en el enunciado)
 const opcionesSeguro = [
@@ -12,16 +13,17 @@ const opcionesSeguro = [
 function App() {
   // --- Estados de la Aplicación ---
   const [deportes, setDeportes] = useState([]); // Colección completa del backend
-  const [categoriaFiltrada, setCategoriaFiltrada] = useState(""); // Filtro activo ("Niños", "Jóvenes", "Adultos" o "" para todos)
+  const [categoriaFiltrada, setCategoriaFiltrada] = useState(""); // Filtro activo ("Niños", "Jóvenes", "Adultos")
   const [deporteSeleccionado, setDeporteSeleccionado] = useState(null); // Objeto del deporte elegido
   const [seguroSeleccionado, setSeguroSeleccionado] = useState(opcionesSeguro[0]); // Seguro (por defecto el primero)
 
   // --- Consumo de API (Carga inicial automática) ---
   useEffect(() => {
-    api.get('/deportes')
+    // CORRECCIÓN 2: Usamos tu función configurada con la URL de entorno
+    getDeportes()
       .then(respuesta => {
-        // Adaptado a tu estructura { estado: true, data: [...] }
-        setDeportes(respuesta.data.data); 
+        // Se adapta a tu objeto de respuesta { estado: true, data: [...] }
+        setDeportes(respuesta.data.data || respuesta.data); 
       })
       .catch(error => {
         console.error("Error al cargar las escuelas deportivas:", error);
@@ -92,7 +94,6 @@ function App() {
                 key={deporte.id} 
                 onClick={() => {
                   setDeporteSeleccionado(deporte);
-                  // Opcional: Reiniciar seguro a la opción base al cambiar de deporte
                   setSeguroSeleccionado(opcionesSeguro[0]); 
                 }}
                 style={{
@@ -117,12 +118,10 @@ function App() {
       {/* --- SELECCIÓN ÚNICA DE SEGURO Y RENDEREADO CONDICIONAL --- */}
       <section style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
         {!deporteSeleccionado ? (
-          // Mensaje indicativo si no hay selección
           <div style={{ padding: '20px', backgroundColor: '#fff3cd', color: '#856404', borderRadius: '4px', textAlign: 'center' }}>
             <strong>Por favor, selecciona un deporte de la lista superior para comenzar tu inscripción.</strong>
           </div>
         ) : (
-          // Panel de inscripción activo
           <div>
             <h3>Configuración de Cobertura</h3>
             <div style={{ marginBottom: '20px' }}>
@@ -171,4 +170,3 @@ function App() {
 }
 
 export default App;
-
